@@ -16,21 +16,37 @@ export const createBus = async (req, res) => {
 
 export const updateLocation = async (req, res) => {
     const { busId, latitude, longitude } = req.body;
-    console.log(`📍 Update Bus ${busId}: ${latitude}, ${longitude}`);
+    console.log(`📍 Location Update Request:`, { busId, latitude, longitude });
 
     try {
         const bus = await prisma.bus.update({
             where: { id: busId },
-            data: { latitude, longitude }
+            data: {
+                latitude: parseFloat(latitude),
+                longitude: parseFloat(longitude)
+            }
         });
+        console.log(`✅ Location Updated Successfully:`, bus);
         res.json(bus);
     } catch (error) {
-        console.error("Update Bus Location Error:", error);
+        console.error("❌ Update Bus Location Error:", error);
         res.status(500).json({ error: "Failed to update location" });
     }
 };
 
 export const getBuses = async (req, res) => {
-    const buses = await prisma.bus.findMany();
-    res.json(buses);
+    try {
+        const buses = await prisma.bus.findMany();
+        console.log(`🚌 Fetched ${buses.length} buses:`, buses.map(b => ({
+            id: b.id,
+            busNo: b.busNo,
+            hasLocation: !!(b.latitude && b.longitude),
+            lat: b.latitude,
+            lng: b.longitude
+        })));
+        res.json(buses);
+    } catch (error) {
+        console.error("❌ Get Buses Error:", error);
+        res.status(500).json({ error: "Failed to fetch buses" });
+    }
 };
