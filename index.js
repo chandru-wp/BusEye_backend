@@ -8,8 +8,17 @@ import busRoutes from "./routes/bus.routes.js";
 dotenv.config();
 const app = express();
 
-app.use(cors());
+app.use(cors({
+    origin: ['http://localhost:5173', 'http://localhost:5174', 'https://bus-tk.chandrukannan.me'],
+    credentials: true
+}));
 app.use(express.json());
+
+// Log all requests
+app.use((req, res, next) => {
+    console.log(`📨 ${req.method} ${req.path}`);
+    next();
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/bus", busRoutes);
