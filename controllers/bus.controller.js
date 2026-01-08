@@ -4,12 +4,16 @@ const prisma = new PrismaClient();
 
 export const createBus = async (req, res) => {
     const { busNo, route } = req.body;
+    console.log(`🚍 Creating new bus:`, { busNo, route });
+
     try {
         const bus = await prisma.bus.create({
             data: { busNo, route }
         });
+        console.log(`✅ Bus created successfully:`, bus);
         res.json(bus);
     } catch (err) {
+        console.error("❌ Failed to create bus:", err);
         res.status(500).json({ error: "Failed to create bus" });
     }
 };
