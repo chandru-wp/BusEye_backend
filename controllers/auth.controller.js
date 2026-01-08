@@ -34,17 +34,20 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        console.log("Login attempt for:", email);
+        console.log("🔐 Login attempt for:", email);
+        console.log("📦 Request body:", { email, password: password ? "***" : "missing" });
 
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user) {
-            console.log("User not found:", email);
+            console.log("❌ User not found:", email);
             return res.status(404).json({ message: "User not found" });
         }
 
+        console.log("✅ User found:", { id: user.id, email: user.email, role: user.role });
+
         const match = await bcrypt.compare(password, user.password);
         if (!match) {
-            console.log("Invalid password for:", email);
+            console.log("❌ Invalid password for:", email);
             return res.status(401).json({ message: "Wrong password" });
         }
 
@@ -53,10 +56,11 @@ export const login = async (req, res) => {
             process.env.JWT_SECRET || "SECRET_KEY"
         );
 
-        console.log("Login successful for:", email);
+        console.log("✅ Login successful for:", email, "- Role:", user.role);
         res.json({ token, role: user.role });
     } catch (error) {
-        console.error("Login error:", error);
+        console.error("❌❌❌ Login error:", error);
+        console.error("Error stack:", error.stack);
         res.status(500).json({ message: "Internal server error", error: error.message });
     }
 };
